@@ -6,12 +6,10 @@ parameters:
           alertmanager:
             enabled: true
           grafana:
-            testFramework:
-              enabled: false
-              defaultDashboardsEnabled: true
-              sidecar:
-                dashboards:
-                  enabled: true
+            sidecar:
+              dashboards:
+                enabled: false
+            defaultDashboardsEnabled: false
 
   kapitan:
     dependencies:
@@ -29,4 +27,4 @@ parameters:
         helm_params:
           namespace: prometheus
           name_template: prometheus-operator
-          release_name: ${target_name}
+          release_name: derpderp
