@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: prometheus-operator-operator
+    chart: prometheus-operator-8.14.0
+    heritage: Tiller
+    release: prometheus-operator
+  name: prometheus-operator-operator
+  namespace: prometheus
+spec:
+  endpoints:
+    - honorLabels: true
+      port: http
+  namespaceSelector:
+    matchNames:
+      - prometheus
+  selector:
+    matchLabels:
+      app: prometheus-operator-operator
+      release: prometheus-operator

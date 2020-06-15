@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: prometheus-operator-kube-scheduler
+    chart: prometheus-operator-8.14.0
+    heritage: Tiller
+    jobLabel: kube-scheduler
+    release: prometheus-operator
+  name: prometheus-operator-kube-scheduler
+  namespace: kube-system
+spec:
+  clusterIP: None
+  ports:
+    - name: http-metrics
+      port: 10251
+      protocol: TCP
+      targetPort: 10251
+  selector:
+    component: kube-scheduler
+  type: ClusterIP

@@ -1,0 +1,40 @@
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade,post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+  labels:
+    app: prometheus-operator-admission
+    chart: prometheus-operator-8.14.0
+    heritage: Tiller
+    release: prometheus-operator
+  name: prometheus-operator-admission
+  namespace: prometheus
+spec:
+  fsGroup:
+    ranges:
+      - max: 65535
+        min: 0
+    rule: MustRunAs
+  hostIPC: false
+  hostNetwork: false
+  hostPID: false
+  privileged: false
+  readOnlyRootFilesystem: false
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    ranges:
+      - max: 65535
+        min: 0
+    rule: MustRunAs
+  volumes:
+    - configMap
+    - emptyDir
+    - projected
+    - secret
+    - downwardAPI
+    - persistentVolumeClaim

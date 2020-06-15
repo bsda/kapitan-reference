@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+  labels:
+    app: prometheus-operator-admission-patch
+    chart: prometheus-operator-8.14.0
+    heritage: Tiller
+    release: prometheus-operator
+  name: prometheus-operator-admission-patch
+  namespace: prometheus
+spec:
+  template:
+    metadata:
+      labels:
+        app: prometheus-operator-admission-patch
+        chart: prometheus-operator-8.14.0
+        heritage: Tiller
+        release: prometheus-operator
+      name: prometheus-operator-admission-patch
+    spec:
+      containers:
+        - args:
+            - patch
+            - --webhook-name=prometheus-operator-admission
+            - --namespace=prometheus
+            - --secret-name=prometheus-operator-admission
+            - --patch-failure-policy=Fail
+          image: jettech/kube-webhook-certgen:v1.2.1
+          imagePullPolicy: IfNotPresent
+          name: patch
+          resources: {}
+      restartPolicy: OnFailure
+      securityContext:
+        runAsGroup: 2000
+        runAsNonRoot: true
+        runAsUser: 2000
+      serviceAccountName: prometheus-operator-admission

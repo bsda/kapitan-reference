@@ -1,0 +1,18 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: prometheus-operator-operator
+    chart: prometheus-operator-8.14.0
+    heritage: Tiller
+    release: prometheus-operator
+  name: prometheus-operator-operator-psp
+rules:
+  - apiGroups:
+      - extensions
+    resourceNames:
+      - prometheus-operator-operator
+    resources:
+      - podsecuritypolicies
+    verbs:
+      - use

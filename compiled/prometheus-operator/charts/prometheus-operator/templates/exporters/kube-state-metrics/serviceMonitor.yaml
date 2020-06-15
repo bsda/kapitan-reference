@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: prometheus-operator-kube-state-metrics
+    chart: prometheus-operator-8.14.0
+    heritage: Tiller
+    release: prometheus-operator
+  name: prometheus-operator-kube-state-metrics
+  namespace: prometheus
+spec:
+  endpoints:
+    - honorLabels: true
+      port: http
+  jobLabel: app.kubernetes.io/name
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: prometheus-operator
+      app.kubernetes.io/name: kube-state-metrics

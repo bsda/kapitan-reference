@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: prometheus-operator
+    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 7.0.3
+    helm.sh/chart: grafana-5.1.4
+  name: prometheus-operator-grafana
+  namespace: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: prometheus-operator
+      app.kubernetes.io/name: grafana
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        checksum/config: b0514eeabc7e1a40070ea7c74eaa4faa1b5c587e2aff355424a70c81625b1283
+        checksum/dashboards-json-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/sc-dashboard-provider-config: 416fdad527e382048a958dfaa31ae44713cc84de89107ed46d8e564ba2952a07
+        checksum/secret: cd9592d2af5ddfa0568d72ac85fe363a75ab162249aa3d0920485105c111608c
+      labels:
+        app.kubernetes.io/instance: prometheus-operator
+        app.kubernetes.io/name: grafana
+    spec:
+      containers:
+        - env:
+            - name: METHOD
+              value: null
+            - name: LABEL
+              value: grafana_dashboard
+            - name: FOLDER
+              value: /tmp/dashboards
+            - name: RESOURCE
+              value: both
+          image: kiwigrid/k8s-sidecar:0.1.151
+          imagePullPolicy: IfNotPresent
+          name: grafana-sc-dashboard
+          resources: {}
+          volumeMounts:
+            - mountPath: /tmp/dashboards
+              name: sc-dashboard-volume
+        - env:
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  key: admin-user
+                  name: prometheus-operator-grafana
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: admin-password
+                  name: prometheus-operator-grafana
+          image: grafana/grafana:7.0.3
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+          name: grafana
+          ports:
+            - containerPort: 80
+              name: service
+              protocol: TCP
+            - containerPort: 3000
+              name: grafana
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/grafana/grafana.ini
+              name: config
+              subPath: grafana.ini
+            - mountPath: /var/lib/grafana
+              name: storage
+            - mountPath: /tmp/dashboards
+              name: sc-dashboard-volume
+            - mountPath: /etc/grafana/provisioning/dashboards/sc-dashboardproviders.yaml
+              name: sc-dashboard-provider
+              subPath: provider.yaml
+            - mountPath: /etc/grafana/provisioning/datasources
+              name: sc-datasources-volume
+      initContainers:
+        - env:
+            - name: METHOD
+              value: LIST
+            - name: LABEL
+              value: grafana_datasource
+            - name: FOLDER
+              value: /etc/grafana/provisioning/datasources
+            - name: RESOURCE
+              value: both
+          image: kiwigrid/k8s-sidecar:0.1.151
+          imagePullPolicy: IfNotPresent
+          name: grafana-sc-datasources
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/grafana/provisioning/datasources
+              name: sc-datasources-volume
+      securityContext:
+        fsGroup: 472
+        runAsGroup: 472
+        runAsUser: 472
+      serviceAccountName: prometheus-operator-grafana
+      volumes:
+        - configMap:
+            name: prometheus-operator-grafana
+          name: config
+        - emptyDir: {}
+          name: storage
+        - emptyDir: {}
+          name: sc-dashboard-volume
+        - configMap:
+            name: prometheus-operator-grafana-config-dashboards
+          name: sc-dashboard-provider
+        - emptyDir: {}
+          name: sc-datasources-volume

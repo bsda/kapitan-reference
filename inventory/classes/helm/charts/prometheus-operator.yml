@@ -1,0 +1,32 @@
+parameters:
+  helm:
+    charts:
+      prometheus-operator:
+        values:
+          alertmanager:
+            enabled: true
+          grafana:
+            testFramework:
+              enabled: false
+              defaultDashboardsEnabled: true
+              sidecar:
+                dashboards:
+                  enabled: true
+
+  kapitan:
+    dependencies:
+      - type: helm
+        output_path: components/charts/prometheus-operator
+        source: https://kubernetes-charts.storage.googleapis.com
+        version: 8.14.0
+        chart_name: prometheus-operator
+    compile:
+      - input_type: helm
+        output_path: charts/
+        input_paths:
+          - components/charts/prometheus-operator
+        helm_values: ${helm:charts:prometheus-operator:values}
+        helm_params:
+          namespace: prometheus
+          name_template: prometheus-operator
+          release_name: ${target_name}

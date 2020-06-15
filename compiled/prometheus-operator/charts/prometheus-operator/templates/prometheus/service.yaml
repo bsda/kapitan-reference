@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: prometheus-operator-prometheus
+    chart: prometheus-operator-8.14.0
+    heritage: Tiller
+    release: prometheus-operator
+    self-monitor: 'true'
+  name: prometheus-operator-prometheus
+  namespace: prometheus
+spec:
+  ports:
+    - name: web
+      port: 9090
+      targetPort: 9090
+  selector:
+    app: prometheus
+    prometheus: prometheus-operator-prometheus
+  type: ClusterIP

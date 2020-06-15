@@ -1,0 +1,8 @@
+classes:
+  - common
+  - helm.charts.prometheus-operator
+
+
+
+parameters:
+  target_name: prometheus-operator

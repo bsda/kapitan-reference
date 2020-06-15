@@ -1,0 +1,19 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app: prometheus-operator-alertmanager
+    chart: prometheus-operator-8.14.0
+    heritage: Tiller
+    release: prometheus-operator
+  name: prometheus-operator-alertmanager
+  namespace: prometheus
+rules:
+  - apiGroups:
+      - extensions
+    resourceNames:
+      - prometheus-operator-alertmanager
+    resources:
+      - podsecuritypolicies
+    verbs:
+      - use
